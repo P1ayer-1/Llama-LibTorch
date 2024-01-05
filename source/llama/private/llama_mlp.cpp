@@ -11,9 +11,6 @@ LlamaMLPImpl::LlamaMLPImpl(const LlamaConfig& config)
     register_module("gate_proj", gate_proj);
     register_module("up_proj", up_proj);
     register_module("down_proj", down_proj);
-    // gate_proj = register_module("gate_proj", torch::nn::Linear(hidden_size, intermediate_size));
-    // up_proj = register_module("up_proj", torch::nn::Linear(hidden_size, intermediate_size));
-    // down_proj = register_module("down_proj", torch::nn::Linear(intermediate_size, hidden_size));
 
 }
 

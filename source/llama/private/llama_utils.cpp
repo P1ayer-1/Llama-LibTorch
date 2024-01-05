@@ -179,3 +179,56 @@ std::vector<char> GetTheBytes(std::string filename ) {
     input.close();
     return bytes;
 }
+
+
+torch::serialize::OutputArchive toOutputArchive(c10::impl::GenericDict dict) {
+
+    // Create a root archive
+    torch::serialize::OutputArchive root_archive;
+    std::unordered_map<std::string, torch::serialize::OutputArchive*> archive_map;
+
+    // Helper function to split a string by a delimiter
+    auto split = [](const std::string &str, char delim) -> std::vector<std::string> {
+        std::stringstream ss(str);
+        std::string token;
+        std::vector<std::string> tokens;
+        while (std::getline(ss, token, delim)) {
+            tokens.push_back(token);
+        }
+        return tokens;
+    };
+
+    for (auto& item : dict) {
+        std::string full_key = item.key().toStringRef();
+        std::vector<std::string> keys = split(full_key, '.');
+
+        torch::serialize::OutputArchive* current_archive = &root_archive;
+        std::string path;
+        for (size_t i = 0; i < keys.size() - 1; ++i) {
+            if (i > 0) {
+                path += ".";
+            }
+            path += keys[i];
+
+            if (archive_map.find(path) == archive_map.end()) {
+                // Create a new sub-archive if it doesn't exist
+                torch::serialize::OutputArchive* new_archive = new torch::serialize::OutputArchive();
+                current_archive->write(keys[i], *new_archive);
+                archive_map[path] = new_archive;
+                current_archive = new_archive;
+            } else {
+                current_archive = archive_map[path];
+            }
+        }
+
+        // Write the tensor to the current level in the nested archive
+        current_archive->write(keys.back(), item.value());
+    }
+
+    // Clean up dynamically allocated archives
+    for (auto& entry : archive_map) {
+        delete entry.second;
+    }
+
+    return root_archive;
+}

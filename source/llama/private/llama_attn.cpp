@@ -8,6 +8,7 @@
 
 
 
+
 LlamaAttentionImpl::LlamaAttentionImpl(const LlamaConfig& config)
     : config(config),
       hidden_size(config.hidden_size),
@@ -21,9 +22,6 @@ LlamaAttentionImpl::LlamaAttentionImpl(const LlamaConfig& config)
       v_proj(torch::nn::Linear(torch::nn::LinearOptions(hidden_size, config.num_attention_heads * head_dim).bias(false))),
       o_proj(torch::nn::Linear(torch::nn::LinearOptions(num_heads * head_dim, hidden_size).bias(false)))
 {
-
-
-
     // Constructor implementation
     // Ensure the module is registered
     register_module("q_proj", q_proj);
@@ -65,9 +63,9 @@ LlamaAttentionImpl::forward(
     torch::Tensor v = v_proj->forward(hidden_states);
 
     // Split into num_heads
-    q = q.view({-1, seq_len, num_heads, head_dim}).transpose(1, 2);
-    k = k.view({-1, seq_len, num_heads, head_dim}).transpose(1, 2);
-    v = v.view({-1, seq_len, num_heads, head_dim}).transpose(1, 2);
+    q = q.view({bsz, seq_len, num_heads, head_dim}).transpose(1, 2);
+    k = k.view({bsz, seq_len, num_heads, head_dim}).transpose(1, 2);
+    v = v.view({bsz, seq_len, num_heads, head_dim}).transpose(1, 2);
 
     int64_t kv_seq_len = k.size(-2);
 
@@ -157,11 +155,5 @@ LlamaAttentionImpl::forward(
 
 
 }
-
-
-
-
-
-
 
 

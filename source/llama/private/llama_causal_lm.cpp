@@ -1,12 +1,14 @@
 #pragma once
 #include "llama_causal_lm.h"
+#include "llama_utils.h"
 
 
 LlamaCausalLMImpl::LlamaCausalLMImpl(const LlamaConfig& config)
     : config(config),
-    model(LlamaModel(config)),
-    lm_head(torch::nn::Linear(torch::nn::LinearOptions(config.hidden_size, config.vocab_size).bias(false)))
+    model(LlamaModel(config))
 {
+    lm_head = torch::nn::Linear(torch::nn::LinearOptions(config.hidden_size, config.vocab_size).bias(false));
+
     register_module("model", model);
     register_module("lm_head", lm_head);
     lm_head->to(config.dtype);
@@ -87,8 +89,9 @@ torch::Tensor LlamaCausalLMImpl::generate(
 
     for (int64_t i = 0; i < num_tokens_to_generate; i++) {
         
-        auto outputs = model->forward(
+        auto outputs = forward(
             input_ids,
+            {},
             {},
             {},
             {},
@@ -97,23 +100,18 @@ torch::Tensor LlamaCausalLMImpl::generate(
             false,
             true);
 
-        past_key_values = std::get<1>(outputs);
+        past_key_values = std::get<2>(outputs);
 
         auto hidden_states = std::get<0>(outputs);
-
-
-        auto seq_len = hidden_states.size(1);
+        
+        
+        
 
         // get the preds for next token by slicing the last token
-        auto next_token_logits = hidden_states.slice(1, seq_len - 1, seq_len).squeeze(1);
-
-
-
-        // get the predicted next token
-        auto probs = torch::nn::functional::softmax(next_token_logits, 1);
-
-        auto next_token = torch::multinomial(probs, 1);
-
+        auto next_token = hidden_states.index({torch::indexing::Slice(), -1, torch::indexing::Slice()}).argmax();
+        
+        next_token = next_token.to(torch::kInt64).unsqueeze(0).unsqueeze(0);
+        
 
         // append next_token to input_ids
         input_ids = torch::cat({input_ids, next_token}, 1);
@@ -123,4 +121,53 @@ torch::Tensor LlamaCausalLMImpl::generate(
     return input_ids;
 
     
+}
+
+
+
+
+
+
+
+void LlamaCausalLMImpl::load_parameters(
+    const std::vector<std::string>& paths
+)
+{
+    
+
+    const torch::OrderedDict<std::string, at::Tensor>& model_params = this->named_parameters();
+
+
+    std::vector<std::string> param_names;
+    // get names of model parameters
+    for (auto const& w : model_params) {
+        param_names.push_back(w.key());
+    }
+
+    // load weights from each path
+    for (const std::string& path : paths) {
+        // load weight from path
+        auto weights = torch::pickle_load(GetTheBytes(path)).toGenericDict();
+
+        std::cout << "weights size: " << weights.size() << std::endl;
+
+        // load weights into model
+        
+        torch::NoGradGuard no_grad;
+        for (auto const& w : weights) {
+            std::string name = w.key().toStringRef();
+            at::Tensor param = w.value().toTensor();
+
+            if (std::find(param_names.begin(), param_names.end(), name) != param_names.end()){
+                model_params.find(name)->copy_(param);
+                std::cout << name << " loaded." << std::endl;
+            } else {
+                std::cout << name << " does not exist among model parameters." << std::endl;
+            };
+
+        }
+    }
+
+
+
 }

@@ -32,6 +32,8 @@ void main(int argc, const char* argv[]) {
     // call generate
     auto input_ids = torch::randint(0, vocab_size, {1, 1});
 
+
+
     auto output = model->generate(input_ids, 10);
 
     std::cout << output << std::endl;

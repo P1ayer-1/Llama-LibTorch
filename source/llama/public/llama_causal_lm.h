@@ -1,6 +1,4 @@
 #pragma once
-#ifndef LLAMA_CAUSAL_LM_H
-#define LLAMA_CAUSAL_LM_H
 
 #include <torch/torch.h>
 #include <tuple>
@@ -8,6 +6,8 @@
 #include "llama_config.h"
 #include "llama_model.h"
 
+#ifndef LLAMA_CAUSAL_LM_H
+#define LLAMA_CAUSAL_LM_H
 
 class LlamaCausalLMImpl : public torch::nn::Module {
 public:
@@ -24,10 +24,15 @@ public:
         bool output_hidden_states = false,
         bool use_cache = false);
 
-    torch::Tensor LlamaCausalLMImpl::generate(
+    torch::Tensor generate(
         torch::Tensor& input_ids,
         const int32_t num_new_tokens = 10
     );
+
+    void load_parameters(
+        const std::vector<std::string>& paths
+    );
+
 
     LlamaConfig config;
 

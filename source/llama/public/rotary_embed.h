@@ -1,7 +1,7 @@
+#pragma once
+#include <torch/torch.h>
 #ifndef LLAMAROTARYEMBEDDING_H
 #define LLAMAROTARYEMBEDDING_H
-
-#include <torch/torch.h>
 
 class LlamaRotaryEmbeddingImpl : public torch::nn::Module {
  public:

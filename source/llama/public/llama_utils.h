@@ -1,10 +1,11 @@
 #pragma once
-#ifndef LLAMA_UTILS_H
-#define LLAMA_UTILS_H
 #include <type_traits>
 #include <torch/torch.h>
 #include <string>
 #include <tuple>
+
+#ifndef LLAMA_UTILS_H
+#define LLAMA_UTILS_H
 
 torch::Tensor rotate_half(const torch::Tensor& x);
 
@@ -79,5 +80,15 @@ c10::optional<torch::Tensor> prepare4DCausalMask(
 
 
 std::vector<char> GetTheBytes(std::string filename);
+
+
+torch::serialize::OutputArchive toOutputArchive(
+    c10::impl::GenericDict dict
+    // torch::serialize::OutputArchive archive = torch::serialize::OutputArchive()
+
+);
+
+
+
 #endif // ROTARY_EMBEDDING_H
 

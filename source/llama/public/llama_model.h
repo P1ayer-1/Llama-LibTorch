@@ -1,9 +1,4 @@
 #pragma once
-#ifndef LLAMA_MODEL_H
-#define LLAMA_MODEL_H
-
-
-
 #include <torch/torch.h>
 
 #include <tuple>
@@ -12,6 +7,9 @@
 #include "llama_rms.h"
 #include <variant>
 
+
+#ifndef LLAMA_MODEL_H
+#define LLAMA_MODEL_H
 
 using KeyValueType = std::variant<c10::optional<at::Tensor>, c10::optional<std::tuple<at::Tensor, at::Tensor>>>;
 

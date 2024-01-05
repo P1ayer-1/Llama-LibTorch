@@ -1,11 +1,10 @@
 #pragma once
-#ifndef LLAMA_MLP_H
-#define LLAMA_MLP_H
 
 #include <torch/torch.h>
 #include "llama_config.h"
 
-
+#ifndef LLAMA_MLP_H
+#define LLAMA_MLP_H
 
 class LlamaMLPImpl : public torch::nn::Module {
 public:

@@ -150,9 +150,9 @@ LlamaModelImpl::forward(
 
         auto layer_outputs = layers[i]->as<LlamaDecoderLayerImpl>()->forward(
             hidden_states,
+            past_key_value,
             attention_mask,
             position_ids,
-            past_key_value,
             resolved_output_attentions,
             resolved_use_cache
         );

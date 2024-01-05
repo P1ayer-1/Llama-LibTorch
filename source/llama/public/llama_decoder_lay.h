@@ -1,6 +1,5 @@
 #pragma once
-#ifndef LLAAM_DECODER_LAY_H
-#define LLAAM_DECODER_LAY_H
+
 
 #include <torch/torch.h>
 #include "llama_attn.h"
@@ -8,6 +7,8 @@
 #include "llama_rms.h"
 #include "llama_config.h"
 
+#ifndef LLAMA_DECODER_LAY_H
+#define LLAMA_DECODER_LAY_H
 
 class LlamaDecoderLayerImpl : public torch::nn::Module {
 public:
@@ -15,11 +16,12 @@ public:
 
     std::tuple<torch::Tensor, c10::optional<torch::Tensor>, c10::optional<std::tuple<torch::Tensor, torch::Tensor>>> forward(
         torch::Tensor& hidden_states,
-        const c10::optional<torch::Tensor>& attention_mask, // dont need to use * here
-        const c10::optional<torch::Tensor>& position_ids,
         c10::optional<std::tuple<torch::Tensor, torch::Tensor>>& past_key_value,
+        const c10::optional<torch::Tensor>& attention_mask = c10::nullopt,
+        const c10::optional<torch::Tensor>& position_ids = c10::nullopt,
         bool output_attentions = false,
         bool use_cache = false);
+
 
 private:
     LlamaConfig config;

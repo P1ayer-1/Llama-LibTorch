@@ -5,7 +5,7 @@ LlamaRotaryEmbeddingImpl::LlamaRotaryEmbeddingImpl(int64_t dim, int64_t max_posi
       max_position_embeddings_(max_position_embeddings),
       base_(base) {
   // Calculate inverse frequencies
-  inv_freq_ = torch::pow(base, -torch::arange(0, dim, 2).to(torch::kFloat32) / dim);
+  inv_freq_ = 1.0 / torch::pow(base, torch::arange(0, dim, 2).to(torch::kFloat32) / dim);
   register_buffer("inv_freq", inv_freq_);
 
   // Initialize the cosine and sine cache

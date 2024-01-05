@@ -19,12 +19,13 @@ LlamaDecoderLayerImpl::LlamaDecoderLayerImpl(const LlamaConfig& config)
 
 std::tuple<torch::Tensor, c10::optional<torch::Tensor>, c10::optional<std::tuple<torch::Tensor, torch::Tensor>>> LlamaDecoderLayerImpl::forward(
     torch::Tensor& hidden_states,
+    c10::optional<std::tuple<torch::Tensor, torch::Tensor>>& past_key_value,
     const c10::optional<torch::Tensor>& attention_mask,
     const c10::optional<torch::Tensor>& position_ids,
-    c10::optional<std::tuple<torch::Tensor, torch::Tensor>>& past_key_value,
     bool output_attentions,
     bool use_cache)
 {
+    // residual connection
     auto residual = hidden_states;
 
     hidden_states = input_layernorm->forward(hidden_states);

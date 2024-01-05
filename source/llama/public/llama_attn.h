@@ -1,24 +1,24 @@
 #pragma once
-#ifndef LLAMA_ATTENTION_H
-#define LLAMA_ATTENTION_H
 
 #include <torch/torch.h>
 #include "llama_config.h"
 #include "rotary_embed.h"
 #include <optional>
-
+#ifndef LLAMA_ATTENTION_H
+#define LLAMA_ATTENTION_H
 
 class LlamaAttentionImpl : public torch::nn::Module {
 public:
     LlamaAttentionImpl(const LlamaConfig& config);
 
-    std::tuple<torch::Tensor,  c10::optional<torch::Tensor>, c10::optional<std::tuple<torch::Tensor, torch::Tensor>>> forward(
+    std::tuple<torch::Tensor, c10::optional<torch::Tensor>, c10::optional<std::tuple<torch::Tensor, torch::Tensor>>> forward(
         const torch::Tensor& hidden_states,
         const c10::optional<torch::Tensor>& attention_mask,
         const c10::optional<torch::Tensor>& position_ids,
         c10::optional<std::tuple<torch::Tensor, torch::Tensor>>& past_key_value,
         bool output_attentions = false,
         bool use_cache = false);
+
 
 private:
     LlamaConfig config;
@@ -34,6 +34,7 @@ private:
 
     // rotary embedding
     std::shared_ptr<LlamaRotaryEmbeddingImpl> rotary;
+
 
 };
 

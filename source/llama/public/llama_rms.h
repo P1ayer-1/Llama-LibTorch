@@ -1,9 +1,7 @@
 #pragma once
+#include <torch/torch.h>
 #ifndef LLAMA_RMS_H
 #define LLAMA_RMS_H
-
-#include <torch/torch.h>
-
 
 class LlamaRMSNormImpl : public torch::nn::Module {
 public:
